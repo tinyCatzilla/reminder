@@ -1,68 +1,84 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: #262626;
-    color: #f4f4f4;
-    padding: 20px;
-  }
-  
-  #reminder-container {
-    margin: 20px 0;
-    padding: 20px;
-    background-color: #1e1e1e;
-    border-radius: 5px;
-    box-shadow: 0px 0px 10px 0px rgba(255,255,255,0.1);
-  }
-  
-  .reminder {
-    border-bottom: 1px solid #444;
-    padding: 10px 0;
-  }
-  
-  .reminder:last-child {
-    border-bottom: none;
-  }
-  
-  .reminder h2, .reminder h1 {
-    margin: 0 0 10px 0;
-    color: #aaa;
-  }
-  
-  #reminder-form {
-    margin-top: 20px;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  #reminder-form label {
-    margin-bottom: 5px;
-    color: #ccc;
-  }
-  
-  #reminder-form input[type="text"] {
-    margin-bottom: 10px;
-    padding: 10px;
-    border: 1px solid #444;
-    border-radius: 5px;
-    font-size: 16px;
-    background: #444;
-    color: #f4f4f4;
-  }
+  font-family: Arial, sans-serif;
+  background-color: #262626;
+  color: #f4f4f4;
+  padding: 20px;
+}
 
-  .reminder-button {
-    padding: 10px 20px;
-    border: none;
-    background-color: #4CAF50; 
-    color: white;
-    cursor: pointer;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    border-radius: 5px;
-    transition-duration: 0.4s;
-  }
-  
-  .reminder-button:hover {
-    background-color: #45a049;
-  }
-  
+/* #reminder-container {
+  margin: 20px 0;
+  padding: 20px;
+  background-color: #1e1e1e;
+  border-radius: 5px;
+  box-shadow: 0px 0px 10px 0px rgba(255,255,255,0.1);
+} */
+
+.reminder {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 5px;
+  background-color: #333;
+  border-bottom: 1px solid #444;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.reminder:last-child {
+  border-bottom: none;
+}
+
+.reminder-name {
+  margin: 0;
+  font-size: 1.25em;
+  font-weight: 700;
+  color: #ddd;
+}
+
+.reminder-time {
+  margin-top: 5px;
+  font-size: 1em;
+  font-weight: 400;
+  color: #bbb;
+}
+
+#reminder-form {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+#reminder-form label {
+  margin-bottom: 5px;
+  color: #ccc;
+}
+
+#reminder-form input[type="text"] {
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #444;
+  border-radius: 5px;
+  font-size: 16px;
+  background: #444;
+  color: #f4f4f4;
+}
+
+.reminder-button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  border: none;
+  background-color: #4CAF50; 
+  color: white;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  border-radius: 5px;
+  transition-duration: 0.4s;
+}
+
+.reminder-button:hover {
+  background-color: #45a049;
+}

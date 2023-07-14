@@ -22,20 +22,23 @@ document.addEventListener('DOMContentLoaded', function() {
         // Create a new reminder div
         const reminderDiv = document.createElement('div');
         reminderDiv.className = 'reminder';
-    
+
         // Create a new h2 for the reminder name and add it to the div
         const reminderName = document.createElement('h2');
         reminderName.textContent = name;
+        reminderName.className = 'reminder-name';  // added class for styling
         reminderDiv.appendChild(reminderName);
 
-        // Create a new h2 for the reminder time and add it to the div
+        // Create a new h1 for the reminder time and add it to the div
         const reminderTime = document.createElement('h2');
+        reminderTime.className = 'reminder-time';  // added class for styling
         const parsedTime = parseTime(time);
         if (parsedTime === '') {
-          reminderTime.textContent = '';
+            reminderTime.textContent = '';
         } else {
-          reminderTime.textContent = formatTime(time);  // formatted time
+            reminderTime.textContent = formatTime(time);  // formatted time
         }
+        reminderDiv.appendChild(reminderTime);
     
         // Start a countdown timer if the reminder is a duration
         if (parsedTime !== '' && !time.match(/^(0?[1-9]|1[012])(:[0-5]\d)?[AaPp][Mm]$/)) {
@@ -61,15 +64,25 @@ document.addEventListener('DOMContentLoaded', function() {
         deleteButton.classList.add('reminder-button');
         deleteButton.textContent = 'Delete';
         deleteButton.addEventListener('click', function() {
-            // clear the countdown timer
-            clearInterval(reminderDiv.dataset.timerId);  
-
-            // Remove the reminder from the DOM
-            reminderDiv.remove();
-
-            // Remove the reminder from storage
-            browser.storage.local.remove(name);
-        });
+          // clear the countdown timer
+          const timerId = Number(reminderDiv.dataset.timerId);
+          clearInterval(timerId);
+      
+          // clear the alarm
+          browser.alarms.clear(name).then(function(wasCleared) {
+              if (wasCleared) {
+                  console.log("Alarm was cleared");
+              } else {
+                  console.log("No alarm with such name was found, or failed to clear the alarm");
+              }
+          });
+      
+          // Remove the reminder from the DOM
+          reminderDiv.remove();
+      
+          // Remove the reminder from storage
+          browser.storage.local.remove(name);
+        });      
         reminderDiv.appendChild(deleteButton);
         
     
@@ -87,24 +100,27 @@ document.addEventListener('DOMContentLoaded', function() {
         // Create a new reminder div
         const reminderDiv = document.createElement('div');
         reminderDiv.className = 'reminder';
-    
+
         // Create a new h2 for the reminder name and add it to the div
         const reminderName = document.createElement('h2');
         reminderName.textContent = name;
+        reminderName.className = 'reminder-name';  // added class for styling
         reminderDiv.appendChild(reminderName);
 
         // Create a new h1 for the reminder time and add it to the div
         const reminderTime = document.createElement('h2');
+        reminderTime.className = 'reminder-time';  // added class for styling
         const parsedTime = parseTime(reminder.time);
         if (parsedTime === '') {
-        reminderTime.textContent = '';
+            reminderTime.textContent = '';
         } else {
-        reminderTime.textContent = formatTime(reminder.time);  // formatted time
+            reminderTime.textContent = formatTime(reminder.time);  // formatted time
         }
+        reminderDiv.appendChild(reminderTime);
     
         // Start a countdown timer if the reminder is a duration
         if (parsedTime !== '' && !reminder.time.match(/^(0?[1-9]|1[012])(:[0-5]\d)?[AaPp][Mm]$/)) {
-        let remainingSeconds = parsedTime * 60 - Math.round((new Date() - new Date(reminder.dueAt)) / 60000); // help
+          let remainingSeconds = parsedTime - Math.round((new Date() - new Date(reminder.dueAt)) / 1000);
         if (remainingSeconds <= 0) {
             reminderTime.textContent = 'Time is up!';
         } else {
@@ -130,14 +146,24 @@ document.addEventListener('DOMContentLoaded', function() {
         deleteButton.classList.add('reminder-button');
         deleteButton.textContent = 'Delete';
         deleteButton.addEventListener('click', function() {
-            // clear the countdown timer
-            clearInterval(reminderDiv.dataset.timerId);  
-
-            // Remove the reminder from the DOM
-            reminderDiv.remove();
-
-            // Remove the reminder from storage
-            browser.storage.local.remove(name);
+          // clear the countdown timer
+          const timerId = Number(reminderDiv.dataset.timerId);
+          clearInterval(timerId);
+      
+          // clear the alarm
+          browser.alarms.clear(name).then(function(wasCleared) {
+              if (wasCleared) {
+                  console.log("Alarm was cleared");
+              } else {
+                  console.log("No alarm with such name was found, or failed to clear the alarm");
+              }
+          });
+      
+          // Remove the reminder from the DOM
+          reminderDiv.remove();
+      
+          // Remove the reminder from storage
+          browser.storage.local.remove(name);
         });
         reminderDiv.appendChild(deleteButton);
     
@@ -245,7 +271,7 @@ function parseTime(time) {
   function secondsToDuration(seconds) {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
+    const secs = Math.round(seconds % 60); // Rounded seconds
 
     let duration = '';
     if (hrs > 0) {
@@ -265,6 +291,7 @@ function parseTime(time) {
 
     return duration;
 }
+
 
   
   
