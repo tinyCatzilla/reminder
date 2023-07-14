@@ -1,11 +1,20 @@
 <!DOCTYPE html>
-<link rel="stylesheet" type="text/css" href="styles.css">
 <html>
   <head>
+    <link rel="stylesheet" type="text/css" href="../options/styles.css">
     <title>Reminder!</title>
     <script src="popup.js"></script>
   </head>
   <body>
-    <h1 id="reminder-name"></h1>
+    <div id="reminder-container">
+    </div>
+    <form id="reminder-form">
+      <label for="reminder-name-input">Reminder Name:</label>
+      <input type="text" id="reminder-name-input" name="reminder-name">
+      <label for="reminder-time-input">Reminder Time:</label>
+      <input type="text" id="reminder-time-input" name="reminder-time">
+      <button class="reminder-button" type="submit">Set Reminder</button>
+    </form>
+    <button id="clear-reminders" class="reminder-button">Clear All Reminders</button>
   </body>
 </html>

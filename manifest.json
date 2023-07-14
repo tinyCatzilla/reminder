@@ -3,14 +3,17 @@
     "name": "Reminder Extension",
     "version": "1.0",
     "description": "A Firefox extension for setting reminders.",
-    "permissions": ["alarms", "notifications"],
+    "permissions": ["alarms", "notifications", "storage"],
     "background": {
-      "scripts": ["background.js"]
+      "scripts": ["background.js"],
+      "persistent": false
     },
     "options_ui": {
       "page": "options/options.html"
     },
     "browser_action": {
+      "default_icon": "images/reminder.png",
+      "default_title": "Reminder Extension",
       "default_popup": "popup/popup.html"
     }
   }
