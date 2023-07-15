@@ -4,15 +4,16 @@ document.addEventListener('DOMContentLoaded', function() {
         const name = document.querySelector("#reminder-name-input").value;
         const time = document.querySelector("#reminder-time-input").value;
         const reminder = {
-            name: name,
-            time: time,
-            dueAt: time ? new Date(Date.now() + parseTime(time) * 60000).toISOString() : null
-          };
+          name: name,
+          time: time,
+          dueAt: time ? new Date(Date.now() + parseTime(time) * 1000).toISOString() : null
+      };
+      
     
         // Create the reminder
         if (time) {
         browser.alarms.create(name, {
-            delayInMinutes: parseTime(time)
+            delayInMinutes: parseTime(time) / 60
         });
         }
     
@@ -42,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
         // Start a countdown timer if the reminder is a duration
         if (parsedTime !== '' && !time.match(/^(0?[1-9]|1[012])(:[0-5]\d)?[AaPp][Mm]$/)) {
-            let remainingSeconds = parsedTime * 60;
+            let remainingSeconds = parsedTime;
             reminderTime.textContent = secondsToDuration(remainingSeconds);  // formatted time
         
             const timerId = setInterval(function() {
@@ -120,25 +121,29 @@ document.addEventListener('DOMContentLoaded', function() {
     
         // Start a countdown timer if the reminder is a duration
         if (parsedTime !== '' && !reminder.time.match(/^(0?[1-9]|1[012])(:[0-5]\d)?[AaPp][Mm]$/)) {
-          let remainingSeconds = parsedTime - Math.round((new Date() - new Date(reminder.dueAt)) / 1000);
-        if (remainingSeconds <= 0) {
+          let currentTime = new Date();
+          let dueTime = new Date(reminder.dueAt);
+          let remainingSeconds = Math.round((dueTime - currentTime) / 1000);
+
+          // Check if the reminder time is past due
+          if (remainingSeconds <= 0) {
             reminderTime.textContent = 'Time is up!';
-        } else {
+          } else {
             reminderTime.textContent = secondsToDuration(remainingSeconds);  // formatted time
 
             const timerId = setInterval(function() {
-            remainingSeconds--;
-            if (remainingSeconds <= 0) {
-                clearInterval(timerId);
-                reminderTime.textContent = 'Time is up!';
-            } else {
-                reminderTime.textContent = secondsToDuration(remainingSeconds);
-            }
+              remainingSeconds--;
+              if (remainingSeconds <= 0) {
+                  clearInterval(timerId);
+                  reminderTime.textContent = 'Time is up!';
+              } else {
+                  reminderTime.textContent = secondsToDuration(remainingSeconds);
+              }
             }, 1000);  // update every second
 
             // Store the timerId to clear it when the reminder is deleted
             reminderDiv.dataset.timerId = timerId;
-        }
+          }
         }
         reminderDiv.appendChild(reminderTime);
 
@@ -182,91 +187,127 @@ document.addEventListener('DOMContentLoaded', function() {
     
         // Clear the local storage
         browser.runtime.sendMessage({action: "clear"}).catch(console.error);
-    });    
+    });  
+    
+    document.querySelector('#settings-icon').addEventListener('click', function() {
+      const settingsMenu = document.querySelector('#settings-menu');
+      if (settingsMenu.style.display === 'none') {
+          settingsMenu.style.display = 'block';
+      } else {
+          settingsMenu.style.display = 'none';
+      }
+    });
 });
 
 function parseTime(time) {
-    let units = {
-      s: 1 / 60,
-      m: 1,
-      h: 60,
-      d: 60 * 24,
-      y: 60 * 24 * 365
-    };
-  
-    if (time.match(/^(0?[1-9]|1[012])(:[0-5]\d)?[AaPp][Mm]$/)) {
-      // this is a specific time
-      const now = new Date();
-      const exactTime = new Date(now.toDateString() + ' ' + time);
-      if (isNaN(exactTime)) {
-        return '';
-      }
-      const diff = exactTime - now;
-      return diff > 0 ? diff / 60000 : (diff + 24 * 60 * 60 * 1000) / 60000;
-    } else if (time.match(/^\d+$/)) {
-      // this is a number without units, assume minutes
-      return parseFloat(time) * units['m'];
-    } else {
-      // try to parse the time as a duration
-      const match = time.match(/(\d+)([smhdy]|$)/g);
-      if (!match) {
-        return '';
-      }
-  
-      let total = 0;
-      for (let part of match) {
-        const unit = part.slice(-1);
-        const value = parseFloat(part.slice(0, -1));
-        if (isNaN(value) || !units[unit]) {
-          return '';
-        }
-        total += value * units[unit];
-      }
-  
-      return total;
+  let units = {
+    s: 1,
+    m: 60,
+    h: 60 * 60,
+    d: 60 * 60 * 24,
+    y: 60 * 60 * 24 * 365
+  };
+
+  if (time.match(/^(0?[1-9]|1[012])(:[0-5]\d)?[AaPp][Mm]$/)) {
+    // this is a specific time
+    const now = new Date();
+    const exactTime = new Date(now.toDateString() + ' ' + time);
+    if (isNaN(exactTime)) {
+      return '';
     }
+    const diff = exactTime - now;
+    return diff > 0 ? diff / 1000 : (diff + 24 * 60 * 60 * 1000) / 1000;
+  } else if (time.match(/^\d+$/)) {
+    // this is a number without units, assume minutes
+    return parseFloat(time) * units['m'];
+  } else {
+    // try to parse the time as a duration
+    const match = time.match(/(\d+)([smhdy]|$)/g);
+    if (!match) {
+      return '';
+    }
+
+    let total = 0;
+    for (let part of match) {
+      const unit = part.slice(-1);
+      const value = parseFloat(part.slice(0, -1));
+      if (isNaN(value) || !units[unit]) {
+        return '';
+      }
+      total += value * units[unit];
+    }
+
+    return total;
   }
+}
+
 
   function formatTime(rawTime) {
-    let formattedTime = '';
-    const timeUnits = rawTime.match(/(\d+)([smhdy]|$)/g);
     const units = {
-      s: ' seconds',
-      m: ' minutes',
-      h: ' hours',
-      d: ' days',
-      y: ' years'
+        s: 1,
+        m: 60,
+        h: 60 * 60,
+        d: 24 * 60 * 60,
+        y: 365 * 24 * 60 * 60,
     };
-  
+
     if(rawTime.match(/^(0?[1-9]|1[012])(:[0-5]\d)?[AaPp][Mm]$/)) {
-      // this is a specific time
-      return rawTime;
+        // this is a specific time
+        return rawTime;
     } else if (rawTime.match(/^\d+$/)) {
-      // this is a number without units, assume minutes
-      return parseFloat(rawTime) + units['m'];
+        // this is a number without units, assume minutes
+        return parseFloat(rawTime) + ' minutes';
     } else {
-      // try to format the time as a duration
-      if (!timeUnits) {
-        return formattedTime;
-      }
-  
-      for (let part of timeUnits) {
-        const unit = part.slice(-1);
-        const value = parseFloat(part.slice(0, -1));
-        if (isNaN(value) || !units[unit]) {
-          continue;
+        // try to format the time as a duration
+        let totalSeconds = 0;
+        const timeUnits = rawTime.match(/(\d+)([smhdy]|$)/g);
+        if (!timeUnits) {
+            return '';
         }
-        formattedTime += value + units[unit] + ', ';
-      }
+
+        for (let part of timeUnits) {
+            const unit = part.slice(-1);
+            const value = parseFloat(part.slice(0, -1));
+            if (isNaN(value) || !units[unit]) {
+                continue;
+            }
+            totalSeconds += value * units[unit];
+        }
+
+        let formattedTime = '';
+        if (totalSeconds / units['y'] >= 1) {
+            let years = Math.floor(totalSeconds / units['y']);
+            totalSeconds %= units['y'];
+            formattedTime += years + ' years, ';
+        }
+        if (totalSeconds / units['d'] >= 1) {
+            let days = Math.floor(totalSeconds / units['d']);
+            totalSeconds %= units['d'];
+            formattedTime += days + ' days, ';
+        }
+        if (totalSeconds / units['h'] >= 1) {
+            let hours = Math.floor(totalSeconds / units['h']);
+            totalSeconds %= units['h'];
+            formattedTime += hours + ' hours, ';
+        }
+        if (totalSeconds / units['m'] >= 1) {
+            let minutes = Math.floor(totalSeconds / units['m']);
+            totalSeconds %= units['m'];
+            formattedTime += minutes + ' minutes, ';
+        }
+        if (totalSeconds > 0) {
+            formattedTime += totalSeconds + ' seconds, ';
+        }
   
-      // Remove trailing comma and space
-      if (formattedTime.length > 2) {
-        formattedTime = formattedTime.slice(0, -2);
-      }
-  
-      return formattedTime;
+        // Remove trailing comma and space
+        if (formattedTime.length > 2) {
+            formattedTime = formattedTime.slice(0, -2);
+        }
+
+        return formattedTime;
     }
-  }
+}
+
 
   function secondsToDuration(seconds) {
     const hrs = Math.floor(seconds / 3600);
@@ -291,6 +332,8 @@ function parseTime(time) {
 
     return duration;
 }
+
+
 
 
   
