@@ -1,44 +1,50 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link rel="stylesheet" type="text/css" href="../options/styles.css">
+    <link rel="stylesheet" type="text/css" href="../styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <title>Reminder!</title>
+    <title>reminder!</title>
     <script src="popup.js"></script>
   </head>
   <body style="width: 500px;">
     <header>
-      <h1>Reminder!</h1>
+      <h1>reminder!</h1>
       <div id="settings-icon">
         <i class="fa fa-cog" aria-hidden="true"></i>
       </div>
     </header>
     
-    <section id="reminder-container">
-    </section>
-    
-    <form id="reminder-form">
-      <div class="input-wrapper">
-        <i class="fa fa-comment-dots" aria-hidden="true"></i>
-        <input type="text" id="reminder-name-input" name="reminder-name" placeholder="Reminder Name">
-      </div>
-      <div class="input-wrapper">
-        <i class="fa fa-clock" aria-hidden="true"></i>
-        <input type="text" id="reminder-time-input" name="reminder-time" placeholder="Reminder Time">
-      </div>
-      <button class="reminder-button" type="submit">Set Reminder</button>
-    </form>
-    
-    <button id="clear-reminders" class="reminder-button">Clear All Reminders</button> 
-    
-    <!-- Hidden settings menu -->
-    <div id="settings-menu" style="display: none;">
-      <label>
-        Option 1
-        <input type="checkbox">
-      </label>
-      <!-- Add more settings here -->
+    <div class="reminder-menu">
+      <section id="reminder-container">
+      </section>
+      
+      <form id="reminder-form">
+        <div class="input-wrapper">
+          <i class="fa fa-comment-dots" aria-hidden="true"></i>
+          <input type="text" id="reminder-name-input" name="reminder-name" placeholder="Reminder Name" class="input-textbox">
+        </div>
+        <div class="input-wrapper">
+          <i class="fa fa-clock" aria-hidden="true"></i>
+          <input type="text" id="reminder-time-input" name="reminder-time" placeholder="Reminder Time" class="input-textbox">
+        </div>
+        <div id="button-container">
+          <button class="reminder-button" type="submit">Set Reminder</button>
+          <button id="clear-reminders" type="button" class="reminder-button">Clear All Reminders</button> 
+        </div>
+      </form>
     </div>
+    
+    
+    <div id="settings-menu" style="display: none;">
+      <div id="setting">
+        <label class="switch">
+          <input id="mode-switch" type="checkbox">
+          <span class="slider round"></span>
+        </label>
+        <span class="option-title">light mode (ugly)</span>
+      </div>
+    </div>
+      
   </body>
   
 </html>

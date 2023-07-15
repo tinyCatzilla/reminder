@@ -179,24 +179,72 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Clear all reminders
     document.querySelector("#clear-reminders").addEventListener('click', function(event) {
-        // Clear the reminder container
-        const container = document.querySelector('#reminder-container');
-        while (container.firstChild) {
-            container.removeChild(container.firstChild);
-        }
-    
-        // Clear the local storage
-        browser.runtime.sendMessage({action: "clear"}).catch(console.error);
-    });  
+      event.preventDefault();  // Prevent the default form submission
+      
+      // Clear the reminder container
+      const container = document.querySelector('#reminder-container');
+      Array.from(container.children).forEach((child) => {
+        const timerId = Number(child.dataset.timerId);
+        clearInterval(timerId);
+      });
+      
+      while (container.firstChild) {
+          container.removeChild(container.firstChild);
+      }
+      
+      // Clear the local storage
+      browser.storage.local.clear().then(function() {
+          console.log("Local storage has been cleared");
+      }).catch(function(error) {
+          console.error("Error clearing local storage: ", error);
+      });
+    });
+
+
     
     document.querySelector('#settings-icon').addEventListener('click', function() {
       const settingsMenu = document.querySelector('#settings-menu');
+      const reminderMenu = document.querySelector('.reminder-menu');
       if (settingsMenu.style.display === 'none') {
-          settingsMenu.style.display = 'block';
+        settingsMenu.style.display = 'block';
+        reminderMenu.style.display = 'none';
       } else {
           settingsMenu.style.display = 'none';
+          reminderMenu.style.display = 'block';
       }
     });
+
+    // Event listener for mode switch
+    document.querySelector("#mode-switch").addEventListener('change', function() {
+      if (this.checked) {
+        document.body.classList.add('light-mode');
+      } else {
+        document.body.classList.remove('light-mode');
+      }
+    });
+
+    // Load the user's preference
+    let lightMode = localStorage.getItem('lightMode') === 'true';
+
+    // Apply the user's preference
+    document.querySelector("#mode-switch").checked = lightMode;
+    if (lightMode) {
+      document.body.classList.add('light-mode');
+    }
+
+    // Event listener for mode switch
+    document.querySelector("#mode-switch").addEventListener('change', function() {
+      lightMode = this.checked;
+      // Save the user's preference
+      localStorage.setItem('lightMode', lightMode);
+      // Apply the new mode
+      if (lightMode) {
+        document.body.classList.add('light-mode');
+      } else {
+        document.body.classList.remove('light-mode');
+      }
+    });
+
 });
 
 function parseTime(time) {
@@ -211,7 +259,15 @@ function parseTime(time) {
   if (time.match(/^(0?[1-9]|1[012])(:[0-5]\d)?[AaPp][Mm]$/)) {
     // this is a specific time
     const now = new Date();
-    const exactTime = new Date(now.toDateString() + ' ' + time);
+    let [hour, minute] = time.split(/[:\s]/); // split on colon or space
+    minute = minute || 0; // default to 0 if no minute is provided
+    const period = time.slice(-2).toUpperCase();
+    
+    if (period === "PM" && hour < 12) hour = +hour + 12;
+    if (period === "AM" && hour == 12) hour = 0;
+  
+    const exactTime = new Date(now.setHours(hour, minute));
+  
     if (isNaN(exactTime)) {
       return '';
     }
@@ -251,9 +307,8 @@ function parseTime(time) {
         y: 365 * 24 * 60 * 60,
     };
 
-    if(rawTime.match(/^(0?[1-9]|1[012])(:[0-5]\d)?[AaPp][Mm]$/)) {
-        // this is a specific time
-        return rawTime;
+    if (rawTime.match(/^(0?[1-9]|1[012])(:[0-5]\d)?[AaPp][Mm]$/)) {
+      return rawTime;
     } else if (rawTime.match(/^\d+$/)) {
         // this is a number without units, assume minutes
         return parseFloat(rawTime) + ' minutes';

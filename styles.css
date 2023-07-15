@@ -1,0 +1,241 @@
+body {
+  font-family: 'Helvetica Neue', sans-serif;
+  background-color: #1c1c1e;
+  color: #f4f4f4;
+  padding: 10px 20px 20px 20px; /* top, right, bottom, left */
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1 {
+  font-size: 24px;
+  color: #fff;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.input-wrapper i {
+  position: absolute;
+  left: 10px;
+  top: 11px;
+  color: #8e8e93;
+  width: 100%;
+  pointer-events: none;
+}
+
+#reminder-form input[type="text"] {
+  margin-bottom: 10px;
+  padding: 8px;
+  padding-left: 30px; /* Increase this value if needed */
+  border: 1px solid #3a3a3c;
+  border-radius: 2px;
+  font-size: 14px;
+  background: #2c2c2e;
+  color: #f4f4f4;
+  width: 100%;
+  box-sizing: border-box; /* include padding and border in the element's total width and height */
+}
+
+.reminder {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 2px;
+  background-color: #2c2c2e;
+  border: 1px solid #3a3a3c;
+}
+
+.reminder-name {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.reminder-time {
+  margin-top: 5px;
+  font-size: 14px;
+  font-weight: 400;
+  color: #ddd;
+}
+
+.reminder-button {
+  margin-top: 10px;
+  padding: 8px 16px;
+  border: none;
+  background-color: #007aff;
+  color: white;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  border-radius: 2px;
+  transition-duration: 0.4s;
+}
+
+.reminder-button:hover {
+  background-color: #005eff;
+}
+
+#settings-icon {
+  position: relative;
+  top: -12px;
+  right: 0;
+  cursor: pointer;
+  color: #8e8e93;
+  margin: 0;
+  padding: 0;
+  transition: all 0.3s ease-in-out;
+}
+
+#settings-icon:hover {
+  transform: rotate(180deg);
+}
+
+#settings-menu {
+  padding: 10px;
+  background-color: #2c2c2e;
+  border-radius: 2px;
+  border: 1px solid #3a3a3c;
+}
+
+#button-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px; /* Adjust to the amount of space you want */
+}
+
+/* Light mode */
+body.light-mode {
+  font-family: 'Helvetica Neue', sans-serif;
+  background-color: #f8f9fa;
+  color: #212529;
+  padding: 10px 20px 20px 20px; /* top, right, bottom, left */
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+body.light-mode header {
+  color: #1c1c1e;
+}
+
+body.light-mode h1 {
+  color: #1c1c1e;
+}
+
+body.light-mode .input-wrapper i {
+  color: #1c1c1e;
+}
+
+body.light-mode #reminder-form input[type="text"] {
+  border: 1px solid #1c1c1e;
+  background: #ffffff;
+  color: #1c1c1e;
+}
+
+body.light-mode .reminder {
+  background-color: #ffffff;
+  border: 1px solid #1c1c1e;
+}
+
+body.light-mode .reminder-name,
+body.light-mode .reminder-time {
+  color: #1c1c1e;
+}
+
+body.light-mode .reminder-button {
+  background-color: #007aff;
+  color: white;
+}
+
+body.light-mode #settings-icon {
+  color: #1c1c1e;
+}
+
+body.light-mode #settings-menu {
+  background-color: #ffffff;
+  border: 1px solid #1c1c1e;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 30px;  
+  height: 17px;  
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 13px;  
+  width: 13px; 
+  left: 2px; 
+  bottom: 2px;  
+  background-color: white;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:checked + .slider:before {
+  transform: translateX(13px); 
+}
+
+.slider.round {
+  border-radius: 20px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+#settings {
+  display: flex;
+  flex-direction: row;
+  align-items: start;
+  padding: 10px;
+  width: 100%;
+  align-items: center;
+}
+
+.option-title {
+  font-size: 1.0rem;
+  font-weight: 400;
+  margin: 5px;
+  padding-left: 5px;
+}
