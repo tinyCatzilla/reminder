@@ -1,252 +1,138 @@
 document.addEventListener('DOMContentLoaded', function() {
-    document.querySelector("#reminder-form").addEventListener('submit', function(event) {
-        event.preventDefault();
-        const name = document.querySelector("#reminder-name-input").value;
-        const time = document.querySelector("#reminder-time-input").value;
-        const reminder = {
-          name: name,
-          time: time,
-          dueAt: time ? new Date(Date.now() + parseTime(time) * 1000).toISOString() : null
-      };
-      
-    
-        // Create the reminder
-        if (time) {
-        browser.alarms.create(name, {
-            delayInMinutes: parseTime(time) / 60
-        });
-        }
-    
-        // Save the reminder
-        browser.storage.local.set({[name]: reminder});
 
-        // Create a new reminder div
-        const reminderDiv = document.createElement('div');
-        reminderDiv.className = 'reminder';
+    // Event listener for the reminder form
+  document.querySelector("#reminder-form").addEventListener('submit', function(event) {
+    event.preventDefault();
 
-        // Create a new h2 for the reminder name and add it to the div
-        const reminderName = document.createElement('h2');
-        reminderName.textContent = name;
-        reminderName.className = 'reminder-name';  // added class for styling
-        reminderDiv.appendChild(reminderName);
+    const name = document.querySelector("#reminder-name-input").value;
+    const time = document.querySelector("#reminder-time-input").value;
+    const reminder = {
+      name: name,
+      time: time,
+      dueAt: time ? new Date(Date.now() + parseTime(time) * 1000).toISOString() : null
+    };
 
-        // Create a new h1 for the reminder time and add it to the div
-        const reminderTime = document.createElement('h2');
-        reminderTime.className = 'reminder-time';  // added class for styling
-        const parsedTime = parseTime(time);
-        if (parsedTime === '') {
-            reminderTime.textContent = '';
-        } else {
-            reminderTime.textContent = formatTime(time);  // formatted time
-        }
-        reminderDiv.appendChild(reminderTime);
-    
-        // Start a countdown timer if the reminder is a duration
-        if (parsedTime !== '' && !time.match(/^(0?[1-9]|1[012])(:[0-5]\d)?[AaPp][Mm]$/)) {
-            let remainingSeconds = parsedTime;
-            reminderTime.textContent = secondsToDuration(remainingSeconds);  // formatted time
-        
-            const timerId = setInterval(function() {
-            remainingSeconds--;
-            if (remainingSeconds <= 0) {
-                clearInterval(timerId);
-                reminderTime.textContent = 'Time is up!';
-            } else {
-                reminderTime.textContent = secondsToDuration(remainingSeconds);
-            }
-            }, 1000);  // update every second
-        
-            // Store the timerId to clear it when the reminder is deleted
-            reminderDiv.dataset.timerId = timerId;
-        }
-        reminderDiv.appendChild(reminderTime);
-
-        const deleteButton = document.createElement('button');
-        deleteButton.classList.add('reminder-button');
-        deleteButton.textContent = 'Delete';
-        deleteButton.addEventListener('click', function() {
-          // clear the countdown timer
-          const timerId = Number(reminderDiv.dataset.timerId);
-          clearInterval(timerId);
-      
-          // clear the alarm
-          browser.alarms.clear(name).then(function(wasCleared) {
-              if (wasCleared) {
-                  console.log("Alarm was cleared");
-              } else {
-                  console.log("No alarm with such name was found, or failed to clear the alarm");
-              }
-          });
-      
-          // Remove the reminder from the DOM
-          reminderDiv.remove();
-      
-          // Remove the reminder from storage
-          browser.storage.local.remove(name);
-        });      
-        reminderDiv.appendChild(deleteButton);
-        
-    
-        // Add the new reminder div to the reminder container
-        document.querySelector('#reminder-container').appendChild(reminderDiv);
-
-    });
-
-    // Get all the reminders
-    browser.storage.local.get(null, function(items) {
-        // `items` is an object with keys that are the names of the reminders
-        for (let name in items) {
-        const reminder = items[name];
-        
-        // Create a new reminder div
-        const reminderDiv = document.createElement('div');
-        reminderDiv.className = 'reminder';
-
-        // Create a new h2 for the reminder name and add it to the div
-        const reminderName = document.createElement('h2');
-        reminderName.textContent = name;
-        reminderName.className = 'reminder-name';  // added class for styling
-        reminderDiv.appendChild(reminderName);
-
-        // Create a new h1 for the reminder time and add it to the div
-        const reminderTime = document.createElement('h2');
-        reminderTime.className = 'reminder-time';  // added class for styling
-        const parsedTime = parseTime(reminder.time);
-        if (parsedTime === '') {
-            reminderTime.textContent = '';
-        } else {
-            reminderTime.textContent = formatTime(reminder.time);  // formatted time
-        }
-        reminderDiv.appendChild(reminderTime);
-    
-        // Start a countdown timer if the reminder is a duration
-        if (parsedTime !== '' && !reminder.time.match(/^(0?[1-9]|1[012])(:[0-5]\d)?[AaPp][Mm]$/)) {
-          let currentTime = new Date();
-          let dueTime = new Date(reminder.dueAt);
-          let remainingSeconds = Math.round((dueTime - currentTime) / 1000);
-
-          // Check if the reminder time is past due
-          if (remainingSeconds <= 0) {
-            reminderTime.textContent = 'Time is up!';
-          } else {
-            reminderTime.textContent = secondsToDuration(remainingSeconds);  // formatted time
-
-            const timerId = setInterval(function() {
-              remainingSeconds--;
-              if (remainingSeconds <= 0) {
-                  clearInterval(timerId);
-                  reminderTime.textContent = 'Time is up!';
-              } else {
-                  reminderTime.textContent = secondsToDuration(remainingSeconds);
-              }
-            }, 1000);  // update every second
-
-            // Store the timerId to clear it when the reminder is deleted
-            reminderDiv.dataset.timerId = timerId;
-          }
-        }
-        reminderDiv.appendChild(reminderTime);
-
-        const deleteButton = document.createElement('button');
-        deleteButton.classList.add('reminder-button');
-        deleteButton.textContent = 'Delete';
-        deleteButton.addEventListener('click', function() {
-          // clear the countdown timer
-          const timerId = Number(reminderDiv.dataset.timerId);
-          clearInterval(timerId);
-      
-          // clear the alarm
-          browser.alarms.clear(name).then(function(wasCleared) {
-              if (wasCleared) {
-                  console.log("Alarm was cleared");
-              } else {
-                  console.log("No alarm with such name was found, or failed to clear the alarm");
-              }
-          });
-      
-          // Remove the reminder from the DOM
-          reminderDiv.remove();
-      
-          // Remove the reminder from storage
-          browser.storage.local.remove(name);
-        });
-        reminderDiv.appendChild(deleteButton);
-    
-        // Add the new reminder div to the reminder container
-        document.querySelector('#reminder-container').appendChild(reminderDiv);
-        }
-    });
-
-    // Clear all reminders
-    document.querySelector("#clear-reminders").addEventListener('click', function(event) {
-      event.preventDefault();  // Prevent the default form submission
-      
-      // Clear the reminder container
-      const container = document.querySelector('#reminder-container');
-      Array.from(container.children).forEach((child) => {
-        const timerId = Number(child.dataset.timerId);
-        clearInterval(timerId);
+    if (parseTime(time) > 0) {
+      browser.alarms.create(name, {
+        delayInMinutes: parseTime(time) / 60
       });
-      
-      while (container.firstChild) {
-          container.removeChild(container.firstChild);
-      }
-      
-      // Clear the local storage
-      browser.storage.local.clear().then(function() {
-          console.log("Local storage has been cleared");
-      }).catch(function(error) {
-          console.error("Error clearing local storage: ", error);
-      });
-    });
-
-
-    
-    document.querySelector('#settings-icon').addEventListener('click', function() {
-      const settingsMenu = document.querySelector('#settings-menu');
-      const reminderMenu = document.querySelector('.reminder-menu');
-      if (settingsMenu.style.display === 'none') {
-        settingsMenu.style.display = 'block';
-        reminderMenu.style.display = 'none';
-      } else {
-          settingsMenu.style.display = 'none';
-          reminderMenu.style.display = 'block';
-      }
-    });
-
-    // Event listener for mode switch
-    document.querySelector("#mode-switch").addEventListener('change', function() {
-      if (this.checked) {
-        document.body.classList.add('light-mode');
-      } else {
-        document.body.classList.remove('light-mode');
-      }
-    });
-
-    // Load the user's preference
-    let lightMode = localStorage.getItem('lightMode') === 'true';
-
-    // Apply the user's preference
-    document.querySelector("#mode-switch").checked = lightMode;
-    if (lightMode) {
-      document.body.classList.add('light-mode');
     }
 
-    // Event listener for mode switch
-    document.querySelector("#mode-switch").addEventListener('change', function() {
-      lightMode = this.checked;
-      // Save the user's preference
-      localStorage.setItem('lightMode', lightMode);
-      // Apply the new mode
-      if (lightMode) {
-        document.body.classList.add('light-mode');
-      } else {
-        document.body.classList.remove('light-mode');
-      }
+    browser.storage.local.set({[name]: reminder});
+
+    const reminderDiv = createReminderDiv(name, time, reminder.dueAt);
+    document.querySelector('#reminder-container').appendChild(reminderDiv);
+  });
+
+  // Get all the reminders
+  browser.storage.local.get(null, function(items) {
+    for (let name in items) {
+      const reminder = items[name];
+      const reminderDiv = createReminderDiv(name, reminder.time, reminder.dueAt);
+      document.querySelector('#reminder-container').appendChild(reminderDiv);
+    }
+  });
+
+  // Clear all reminders
+  document.querySelector("#clear-reminders").addEventListener('click', function(event) {
+    event.preventDefault();
+
+    const container = document.querySelector('#reminder-container');
+    Array.from(container.children).forEach((child) => {
+      const timerId = Number(child.dataset.timerId);
+      clearInterval(timerId);
     });
+
+    while (container.firstChild) {
+      container.removeChild(container.firstChild);
+    }
+
+    browser.storage.local.clear();
+  });
+
+
+  document.querySelector('#settings-icon').addEventListener('click', toggleSettingsMenu);
+  document.querySelector("#mode-switch").addEventListener('change', handleModeSwitch);
+  loadUserPreferences();
 
 });
 
+window.addEventListener('beforeunload', function() {
+  stopCountdown();
+});
+
+
+const createReminderDiv = (name, time, dueAt) => {
+  const reminderDiv = document.createElement('div');
+  reminderDiv.className = 'reminder';
+
+  const reminderName = document.createElement('h2');
+  reminderName.textContent = name;
+  reminderName.className = 'reminder-name';
+  reminderDiv.appendChild(reminderName);
+
+  const reminderTime = document.createElement('h2');
+  reminderTime.className = 'reminder-time';
+  reminderDiv.appendChild(reminderTime);
+
+  const deleteButton = document.createElement('button');
+  deleteButton.classList.add('reminder-button');
+  deleteButton.textContent = 'Delete';
+  deleteButton.addEventListener('click', function() {
+    deleteReminder(name, reminderDiv);
+  });
+  reminderDiv.appendChild(deleteButton);
+
+  const parsedTime = parseTime(time);
+  if (parsedTime !== '') {
+    if (dueAt) {
+      let currentTime = new Date();
+      let dueTime = new Date(dueAt);
+      let remainingSeconds = Math.round((dueTime - currentTime) / 1000);
+
+      if (remainingSeconds <= 0) {
+        reminderTime.textContent = 'Time is up!';
+      } else {
+        reminderTime.textContent = secondsToDuration(remainingSeconds);
+        startCountdown(reminderTime, remainingSeconds);
+      }
+    } else {
+      reminderTime.textContent = formatTime(time);
+      if (parsedTime > 0) {
+        startCountdown(reminderTime, parsedTime);
+      }
+    }
+  } else {
+    reminderTime.textContent = '';
+  }
+
+  return reminderDiv;
+};
+
+// Starts a countdown timer
+const startCountdown = (reminderTime, remainingSeconds) => {
+  const timerId = setInterval(function() {
+    remainingSeconds--;
+    if (remainingSeconds <= 0) {
+      clearInterval(timerId);
+      reminderTime.textContent = 'Time is up!';
+    } else {
+      reminderTime.textContent = secondsToDuration(remainingSeconds);
+    }
+  }, 1000);
+
+  reminderTime.parentElement.dataset.timerId = timerId;
+};
+
+// Deletes a reminder
+const deleteReminder = (name, reminderDiv) => {
+  const timerId = Number(reminderDiv.dataset.timerId);
+  clearInterval(timerId);
+
+  browser.alarms.clear(name);
+  reminderDiv.remove();
+  browser.storage.local.remove(name);
+};
 function parseTime(time) {
   let units = {
     s: 1,
@@ -388,7 +274,39 @@ function parseTime(time) {
     return duration;
 }
 
+const toggleSettingsMenu = () => {
+  const settingsMenu = document.querySelector('#settings-menu');
+  const reminderMenu = document.querySelector('.reminder-menu');
+  if (settingsMenu.style.display === 'none') {
+    settingsMenu.style.display = 'block';
+    reminderMenu.style.display = 'none';
+  } else {
+      settingsMenu.style.display = 'none';
+      reminderMenu.style.display = 'block';
+  }
+}
 
+const handleModeSwitch = (initial=false) => {
+  const lightMode = document.querySelector("#mode-switch").checked;
+  // Apply the new mode
+  if (lightMode) {
+    document.body.classList.add('light-mode');
+  } else {
+    document.body.classList.remove('light-mode');
+  }
+
+  // Save the user's preference if this isn't the initial run
+  if (!initial) {
+    localStorage.setItem('lightMode', lightMode);
+  }
+}
+
+const loadUserPreferences = () => {
+  // Load the user's preference
+  let lightMode = localStorage.getItem('lightMode') === 'true';
+  document.querySelector("#mode-switch").checked = lightMode;
+  handleModeSwitch(true); // Apply the user's preference
+}
 
 
   
@@ -397,51 +315,6 @@ function parseTime(time) {
   
 
 
-
-
-
-
-
-
-// // Get all reminders
-// browser.storage.local.get().then(reminders => {
-//     // Display the reminders
-//     for (let name in reminders) {
-//       const reminder = reminders[name];
-//       const p = document.createElement('p');
-//       p.textContent = `Reminder: ${name} at ${reminder.dueAt}`;
-//       document.body.appendChild(p);
-//     }
-//   });
-  
-// const params = new URLSearchParams(window.location.search);
-// const reminderName = params.get('reminder');
-
-// if (reminderName) {
-//     // This popup was opened by clicking a notification, so display options for the reminder
-//     const options = document.createElement('div');
-//     options.innerHTML = `
-//         <h2>${reminderName}</h2>
-//         <button id="delete">Delete</button>
-//         <button id="delay">Delay</button>
-//         <button id="keep">Keep</button>
-//     `;
-//     document.body.appendChild(options);
-
-//     document.querySelector("#delete").addEventListener('click', function() {
-//         // Delete the reminder
-//         browser.alarms.clear(reminderName);
-//         browser.storage.local.remove(reminderName);
-//     });
-
-//     document.querySelector("#delay").addEventListener('click', function() {
-//         // Display a UI for delaying the reminder
-//     });
-
-//     document.querySelector("#keep").addEventListener('click', function() {
-//         // Do nothing
-//     });
-// }
 
 
   
